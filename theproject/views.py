@@ -25,14 +25,8 @@ class MainFrame(wx.Frame):
                 return
             pathname = file_dialog.GetPath()
             print(pathname)
-            self.open_image(pathname)
+            self.pan_image.update_image(pathname)
 
-
-    def __image_ratio(self, image:wx.Image):
-        w = image.GetWidth()
-        h = image.GetHeight()
-
-        return w/h
 
     def __make_toolbar(self):
         toolbar = wx.MenuBar()
@@ -55,23 +49,6 @@ class MainFrame(wx.Frame):
         self.__pan_image.SetSizer(img_sizer)
 
         #self.Refresh()
-
-    def __make_image_panel(self, sizer):
-        pan_image = wx.Panel(self)
-        sizer.Add(pan_image, 5, wx.ALL | wx.EXPAND, 5)
-
-        #image_path = 'pic3.jpg'
-        #img = self.open_image(pan_image, image_path)
-        img = wx.EmptyImage(self.image_size, self.image_size)
-        ratio = self.__image_ratio(img)
-        img.Rescale(self.image_size*ratio, self.image_size)
-        self.SetSize(self.image_size*ratio, self.image_size+150)
-        self.image_widget = wx.StaticBitmap(pan_image, bitmap=wx.BitmapFromImage(img))
-        img_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
-        pan_image.SetSizer(img_sizer)
-        
-        return pan_image
 
     def __make_button_panel(self, sizer):
         pan_buttons = wx.Panel(self)
@@ -102,26 +79,25 @@ class MainFrame(wx.Frame):
         self.toolbar = self.__make_toolbar()
         mainbox = wx.BoxSizer(wx.VERTICAL)
         #self.__pan_image = self.__make_image_panel(mainbox)
-        __pan_image = ImagePanel(self, mainbox)
+        self.pan_image = ImagePanel(self, mainbox)
         self.__pan_buttons = self.__make_button_panel(mainbox)
         self.SetSizer(mainbox)
 
         self.__btn_nsfw, self.__btn_sfw = self.__make_buttons(self.__pan_buttons)
 
-        #img = wx.EmptyImage(self.image_size, self.image_size)
-
     
 
 class ImagePanel(wx.Panel):
+    default_size = 800
     def __init__(self, parent, sizer):
-        image_size = 800
+        self.parent = parent
         super().__init__(parent)
         sizer.Add(self, 5, wx.ALL | wx.EXPAND, 5)
 
-        img = wx.EmptyImage(image_size, image_size)
+        img = wx.EmptyImage(self.default_size, self.default_size)
         #ratio = self.__image_ratio(img)
-        img.Rescale(image_size, image_size)
-        parent.SetSize(image_size, image_size+150)
+        img.Rescale(self.default_size, self.default_size)
+        parent.SetSize(self.default_size, self.default_size+150)
 
         self.image_widget = wx.StaticBitmap(self, bitmap=wx.BitmapFromImage(img))
 
@@ -129,9 +105,23 @@ class ImagePanel(wx.Panel):
         img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(img_sizer)
 
+    def image_ratio(self, image:wx.Image):
+        w = image.GetWidth()
+        h = image.GetHeight()
 
-    def update_image(self):
-        pass
+        return w/h
+
+    def update_image(self, path):
+        img = wx.Image(path, wx.BITMAP_TYPE_ANY)
+        ratio = self.image_ratio(img)
+        img.Rescale(self.default_size*ratio, self.default_size)
+
+        self.parent.SetSize(self.default_size*ratio, self.default_size+150)
+        
+        self.image_widget.SetBitmap(wx.BitmapFromImage(img))
+        img_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        self.SetSizer(img_sizer)
         
 
 
