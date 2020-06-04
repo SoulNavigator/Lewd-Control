@@ -10,6 +10,7 @@ class MyFrame(wx.Frame):
         self.init_ui()
         self.__make_binds()
 
+    # EVENTS:
     def OnNSFWbuttonPress(self, event):
         print("This picture is NSFW")
 
@@ -17,11 +18,14 @@ class MyFrame(wx.Frame):
         print("This picture is SFW")
     
     def OnMenuScanPress(self, event):
-        with wx.FileDialog(self, "Pick file") as file_dialog:
+        wildcard = "pictures (*.jpeg,*.png,*.jpg)|*.jpeg;*.png;*.jpg"
+        with wx.FileDialog(self, "Pick file", wildcard=wildcard) as file_dialog:
             if file_dialog.ShowModal() == wx.ID_CANCEL:
                 return
             pathname = file_dialog.GetPath()
             print(pathname)
+            self.open_image(pathname)
+
 
     def __image_ratio(self, image:wx.Image):
         w = image.GetWidth()
@@ -38,23 +42,34 @@ class MyFrame(wx.Frame):
 
         return toolbar
 
+    def open_image(self, path):
+        img = wx.Image(path, wx.BITMAP_TYPE_ANY)
+        ratio = self.__image_ratio(img)
+        img.Rescale(self.image_size*ratio, self.image_size)
+        self.SetSize(self.image_size*ratio, self.image_size+150)
+        
+        self.image_widget.SetBitmap(wx.BitmapFromImage(img))
+        img_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        self.__pan_image.SetSizer(img_sizer)
+
+        #self.Refresh()
+
     def __make_image_panel(self, sizer):
         pan_image = wx.Panel(self)
         sizer.Add(pan_image, 5, wx.ALL | wx.EXPAND, 5)
 
-        self.image_path = 'pic3.jpg'
-
-        img = wx.Image(self.image_path, wx.BITMAP_TYPE_ANY)
+        image_path = 'pic3.jpg'
+        #img = self.open_image(pan_image, image_path)
+        img = wx.EmptyImage(self.image_size, self.image_size)
         ratio = self.__image_ratio(img)
         img.Rescale(self.image_size*ratio, self.image_size)
         self.SetSize(self.image_size*ratio, self.image_size+150)
-
-        image_widget = wx.StaticBitmap(pan_image, bitmap=wx.BitmapFromImage(img))
-
+        self.image_widget = wx.StaticBitmap(pan_image, bitmap=wx.BitmapFromImage(img))
         img_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        img_sizer.Add(image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
         pan_image.SetSizer(img_sizer)
-
+        
         return pan_image
 
     def __make_button_panel(self, sizer):
@@ -93,6 +108,7 @@ class MyFrame(wx.Frame):
 
         #img = wx.EmptyImage(self.image_size, self.image_size)
 
+    
 
 
         
