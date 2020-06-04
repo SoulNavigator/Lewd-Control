@@ -8,6 +8,13 @@ class MyFrame(wx.Frame):
 
         super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(self.image_size, self.image_size))
         self.init_ui()
+        self.__make_binds()
+
+    def h_NSFW_button(self, event):
+        print("This picture is NSFW")
+
+    def h_SFW_button(self, event):
+        print("This picture is SFW")
     
 
     def __image_ratio(self, image:wx.Image):
@@ -51,25 +58,27 @@ class MyFrame(wx.Frame):
     def __make_buttons(self, parent):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         btn_lewd = wx.Button(parent, label='OwO!')
-        #bind for lewd
 
         btn_normal = wx.Button(parent, label='SFW')
-        #bind for normal
-        
+
         hbox.Add(btn_normal,1,  wx.ALL |wx.EXPAND, 10)
         hbox.Add(btn_lewd,2,  wx.ALL|wx.EXPAND,  10) 
         parent.SetSizer(hbox)
 
         return (btn_lewd, btn_normal)
 
+    def __make_binds(self):
+        self.__btn_nsfw.Bind(wx.EVT_BUTTON, self.h_NSFW_button)
+        self.__btn_sfw.Bind(wx.EVT_BUTTON, self.h_SFW_button)
+
     def init_ui(self):
         self.toolbar = self.__make_toolbar()
         mainbox = wx.BoxSizer(wx.VERTICAL)
-        self.pan_image = self.__make_image_panel(mainbox)
-        self.pan_buttons = self.__make_button_panel(mainbox)
+        self.__pan_image = self.__make_image_panel(mainbox)
+        self.__pan_buttons = self.__make_button_panel(mainbox)
         self.SetSizer(mainbox)
 
-        self.btn_nsfw, self.btn_sfw = self.__make_buttons(self.pan_buttons)
+        self.__btn_nsfw, self.__btn_sfw = self.__make_buttons(self.__pan_buttons)
 
         #img = wx.EmptyImage(self.image_size, self.image_size)
 
