@@ -2,13 +2,14 @@ import wx
 
 
 # pylint: disable=fixme, no-member
-class MyFrame(wx.Frame):
+class MainFrame(wx.Frame):
     image_size = 800
     def __init__(self, parent, title):
 
         super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(self.image_size, self.image_size))
         self.init_ui()
         self.__make_binds()
+
 
     # EVENTS:
     def OnNSFWbuttonPress(self, event):
@@ -59,7 +60,7 @@ class MyFrame(wx.Frame):
         pan_image = wx.Panel(self)
         sizer.Add(pan_image, 5, wx.ALL | wx.EXPAND, 5)
 
-        image_path = 'pic3.jpg'
+        #image_path = 'pic3.jpg'
         #img = self.open_image(pan_image, image_path)
         img = wx.EmptyImage(self.image_size, self.image_size)
         ratio = self.__image_ratio(img)
@@ -100,7 +101,8 @@ class MyFrame(wx.Frame):
     def init_ui(self):
         self.toolbar = self.__make_toolbar()
         mainbox = wx.BoxSizer(wx.VERTICAL)
-        self.__pan_image = self.__make_image_panel(mainbox)
+        #self.__pan_image = self.__make_image_panel(mainbox)
+        __pan_image = ImagePanel(self, mainbox)
         self.__pan_buttons = self.__make_button_panel(mainbox)
         self.SetSizer(mainbox)
 
@@ -110,11 +112,30 @@ class MyFrame(wx.Frame):
 
     
 
+class ImagePanel(wx.Panel):
+    def __init__(self, parent, sizer):
+        image_size = 800
+        super().__init__(parent)
+        sizer.Add(self, 5, wx.ALL | wx.EXPAND, 5)
 
+        img = wx.EmptyImage(image_size, image_size)
+        #ratio = self.__image_ratio(img)
+        img.Rescale(image_size, image_size)
+        parent.SetSize(image_size, image_size+150)
+
+        self.image_widget = wx.StaticBitmap(self, bitmap=wx.BitmapFromImage(img))
+
+        img_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        self.SetSizer(img_sizer)
+
+
+    def update_image(self):
+        pass
         
 
 
 app = wx.App(False)
-frame = MyFrame(None, "Lewd Control")
+frame = MainFrame(None, "Lewd Control")
 frame.Show(True)
 app.MainLoop()
