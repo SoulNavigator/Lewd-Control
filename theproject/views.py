@@ -10,12 +10,18 @@ class MyFrame(wx.Frame):
         self.init_ui()
         self.__make_binds()
 
-    def h_NSFW_button(self, event):
+    def OnNSFWbuttonPress(self, event):
         print("This picture is NSFW")
 
-    def h_SFW_button(self, event):
+    def OnSFWbuttonPress(self, event):
         print("This picture is SFW")
     
+    def OnMenuScanPress(self, event):
+        with wx.FileDialog(self, "Pick file") as file_dialog:
+            if file_dialog.ShowModal() == wx.ID_CANCEL:
+                return
+            pathname = file_dialog.GetPath()
+            print(pathname)
 
     def __image_ratio(self, image:wx.Image):
         w = image.GetWidth()
@@ -27,7 +33,7 @@ class MyFrame(wx.Frame):
         toolbar = wx.MenuBar()
         menu_file = wx.Menu()
         toolbar.Append(menu_file, 'File')
-        menu_file.Append(wx.ID_ANY, 'Scan folder')
+        self.__i_scan = menu_file.Append(wx.ID_ANY, 'Scan folder')
         self.SetMenuBar(toolbar)
 
         return toolbar
@@ -36,7 +42,9 @@ class MyFrame(wx.Frame):
         pan_image = wx.Panel(self)
         sizer.Add(pan_image, 5, wx.ALL | wx.EXPAND, 5)
 
-        img = wx.Image('pic4.jpg', wx.BITMAP_TYPE_ANY)
+        self.image_path = 'pic3.jpg'
+
+        img = wx.Image(self.image_path, wx.BITMAP_TYPE_ANY)
         ratio = self.__image_ratio(img)
         img.Rescale(self.image_size*ratio, self.image_size)
         self.SetSize(self.image_size*ratio, self.image_size+150)
@@ -68,9 +76,12 @@ class MyFrame(wx.Frame):
         return (btn_lewd, btn_normal)
 
     def __make_binds(self):
-        self.__btn_nsfw.Bind(wx.EVT_BUTTON, self.h_NSFW_button)
-        self.__btn_sfw.Bind(wx.EVT_BUTTON, self.h_SFW_button)
-
+        #Buttons
+        self.__btn_nsfw.Bind(wx.EVT_BUTTON, self.OnNSFWbuttonPress)
+        self.__btn_sfw.Bind(wx.EVT_BUTTON, self.OnSFWbuttonPress)
+        #Menu items
+        self.Bind(wx.EVT_MENU, self.OnMenuScanPress, self.__i_scan)
+        
     def init_ui(self):
         self.toolbar = self.__make_toolbar()
         mainbox = wx.BoxSizer(wx.VERTICAL)
