@@ -3,7 +3,7 @@ import wx
 
 # pylint: disable=fixme, no-member
 class MyFrame(wx.Frame):
-    image_size = 300
+    image_size = 800
     def __init__(self, parent, title):
         
         super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(self.image_size, self.image_size))
@@ -17,6 +17,13 @@ class MyFrame(wx.Frame):
         return w/h
 
     def init_ui(self):
+        toolbar = wx.MenuBar()
+        menu_file = wx.Menu()
+        toolbar.Append(menu_file, 'File')
+        menu_file.Append(wx.ID_ANY, 'Scan folder')
+        #menu_file.Append(wx.ID_ANY, 'Set folder for NSFW')
+        self.SetMenuBar(toolbar)
+
 
         pan_image = wx.Panel(self)
         pan_buttons = wx.Panel(self)
@@ -28,11 +35,11 @@ class MyFrame(wx.Frame):
         self.SetSizer(mainbox)
 
         #img = wx.EmptyImage(self.image_size, self.image_size)
-        img = wx.Image('pic.png', wx.BITMAP_TYPE_ANY)
+        img = wx.Image('pic3.jpg', wx.BITMAP_TYPE_ANY)
         ratio = self.image_ratio(img)
         img.Rescale(self.image_size*ratio, self.image_size)
         self.SetSize(self.image_size*ratio, self.image_size+150)
-        
+
         image_widget = wx.StaticBitmap(pan_image, bitmap=wx.BitmapFromImage(img))
         
         img_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -43,9 +50,11 @@ class MyFrame(wx.Frame):
         btn_lewd = wx.Button(pan_buttons, label='OwO!')
         btn_normal = wx.Button(pan_buttons, label='SFW')
         hbox.Add(btn_normal,1,  wx.ALL |wx.EXPAND, 10)
-        hbox.Add(btn_lewd,3,  wx.ALL|wx.EXPAND,  10) 
+        hbox.Add(btn_lewd,2,  wx.ALL|wx.EXPAND,  10) 
         
         pan_buttons.SetSizer(hbox)
+
+        
 
 
 app = wx.App(False)
