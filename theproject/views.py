@@ -4,44 +4,15 @@ import wx
 # pylint: disable=fixme, no-member
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
-        super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(self.image_size, self.image_size))
-        self.init_ui()
-        self.__make_binds()
-   
-    def OnMenuScanPress(self, event):
-        wildcard = "pictures (*.jpeg,*.png,*.jpg)|*.jpeg;*.png;*.jpg"
-        with wx.FileDialog(self, "Pick file", wildcard=wildcard) as file_dialog:
-            if file_dialog.ShowModal() == wx.ID_CANCEL:
-                return
-            pathname = file_dialog.GetPath()
-            print(pathname)
-            self.pan_image.update_image(pathname)
+        super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(800, 1000))
+        self.make_ui()
 
-
-    def __make_toolbar(self):
-        toolbar = wx.MenuBar()
-        menu_file = wx.Menu()
-        toolbar.Append(menu_file, 'File')
-        self.__i_scan = menu_file.Append(wx.ID_ANY, 'Scan folder')
-        self.SetMenuBar(toolbar)
-
-        return toolbar
-
-    def __make_binds(self):
-        self.Bind(wx.EVT_MENU, self.OnMenuScanPress, self.__i_scan)
-        
-    def init_ui(self):
-        self.toolbar = self.__make_toolbar()
+    def make_ui(self):
+        self.toolbar = Menubar(self)
         mainbox = wx.BoxSizer(wx.VERTICAL)
-
         self.pan_image = ImagePanel(self, mainbox)
         self.pan_buttons = ButtonPanel(self, mainbox)
-        #self.__pan_buttons = self.__make_button_panel(mainbox)
         self.SetSizer(mainbox)
-
-        #self.__btn_nsfw, self.__btn_sfw = self.__make_buttons(self.pan_buttons)
-
-    
 
 class ImagePanel(wx.Panel):
     default_size = 800
@@ -107,6 +78,27 @@ class ButtonPanel(wx.Panel):
     def OnSFWbuttonPress(self, event):
         print("This picture is SFW")
     
+class Menubar(wx.MenuBar):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        menubar = wx.MenuBar()
+        file = wx.Menu()
+        menubar.Append(file, 'File')
+        self.i_scan = file.Append(wx.ID_ANY, 'Scan folder')
+        parent.SetMenuBar(menubar)
+        self.bind_items()
+
+    def bind_items(self):
+        self.parent.Bind(wx.EVT_MENU, self.OnMenuScanPress, self.i_scan)
+        
+    def OnMenuScanPress(self, event):
+        wildcard = "pictures (*.jpeg,*.png,*.jpg)|*.jpeg;*.png;*.jpg"
+        with wx.FileDialog(self, "Pick file", wildcard=wildcard) as file_dialog:
+            if file_dialog.ShowModal() == wx.ID_CANCEL:
+                return
+            pathname = file_dialog.GetPath()
+            self.parent.pan_image.update_image(pathname)
 
 app = wx.App(False)
 frame = MainFrame(None, "Lewd Control")
