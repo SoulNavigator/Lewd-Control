@@ -100,7 +100,8 @@ class Menubar(wx.MenuBar):
             pathname = file_dialog.GetPath()
             self.parent.pan_image.update_image(pathname)
 
-app = wx.App(False)
-frame = MainFrame(None, "Lewd Control")
-frame.Show(True)
-app.MainLoop()
+def start_gui():
+    app = wx.App(False)
+    frame = MainFrame(None, "Lewd Control")
+    frame.Show(True)
+    app.MainLoop()
