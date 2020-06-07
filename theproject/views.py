@@ -1,10 +1,13 @@
 import wx
-from manager import get_images, print_images
+from manager import get_images, print_images, move_to_folder
 # pylint: disable=fixme, no-member
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         super().__init__(parent, title=title, style=wx.CAPTION | wx.CLOSE_BOX, size=wx.Size(800, 1000))
         self.make_ui()
+        self.images = set()
+        self.image_dir = ''
+        self.current_image = ''
 
     def make_ui(self):
         self.toolbar = Menubar(self)
@@ -13,8 +16,15 @@ class MainFrame(wx.Frame):
         self.pan_buttons = ButtonPanel(self, mainbox)
         self.SetSizer(mainbox)
 
+    def get_next_image(self):
+        self.current_image = self.images.pop()
+        self.current_image = f'{self.image_dir}/{self.current_image}'
+        self.pan_image.update_image(self.current_image)
+        print(self.current_image)
+
 class ImagePanel(wx.Panel):
     default_size = 800
+    
     def __init__(self, parent, sizer):
         self.parent = parent
         super().__init__(parent)
@@ -45,7 +55,11 @@ class ImagePanel(wx.Panel):
         
         self.image_widget.SetBitmap(wx.BitmapFromImage(img))
         img_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        try:
+            img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
+        except:
+            pass
+        #img_sizer.Add(self.image_widget, 1, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(img_sizer)
 
 class ButtonPanel(wx.Panel):
@@ -72,9 +86,18 @@ class ButtonPanel(wx.Panel):
         self.btn_no.Bind(wx.EVT_BUTTON, self.OnSFWbuttonPress)
 
     def OnNSFWbuttonPress(self, event):
+        move_to_folder(self.parent.current_image)
+        self.parent.get_next_image()
+        
+
         print("This picture is NSFW")
 
     def OnSFWbuttonPress(self, event):
+        imgpanel = self.parent.pan_image
+        image = self.parent.get_next_image()
+        print(image)
+        imgpanel.update_image(image)
+
         print("This picture is SFW")
     
 class Menubar(wx.MenuBar):
@@ -97,8 +120,16 @@ class Menubar(wx.MenuBar):
         with wx.DirDialog(self, 'Choose image directory') as dir_dialog:
             if dir_dialog.ShowModal() == wx.ID_CANCEL:
                 return
-            pathname = dir_dialog.GetPath()
-            print_images(pathname)
+            path = dir_dialog.GetPath()
+            self.parent.images = get_images(path)
+            self.parent.image_dir = path
+
+            self.parent.get_next_image()
+
+            #self.parent.current_image = f'{self.parent.image_dir}/{self.parent.images.pop()}'
+            #first_image = f'{self.parent.image_dir}/{self.parent.images.pop()}'
+            #self.parent.pan_image.update_image(self.parent.current_image)
+            #print(self.parent.current_image)
             #self.parent.pan_image.update_image(pathname)
 
 def start_gui():
