@@ -1,6 +1,5 @@
 import wx
-
-
+from manager import get_images, print_images
 # pylint: disable=fixme, no-member
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
@@ -93,12 +92,14 @@ class Menubar(wx.MenuBar):
         self.parent.Bind(wx.EVT_MENU, self.OnMenuScanPress, self.i_scan)
         
     def OnMenuScanPress(self, event):
-        wildcard = "pictures (*.jpeg,*.png,*.jpg)|*.jpeg;*.png;*.jpg"
-        with wx.FileDialog(self, "Pick file", wildcard=wildcard) as file_dialog:
-            if file_dialog.ShowModal() == wx.ID_CANCEL:
+        #wildcard = "pictures (*.jpeg,*.png,*.jpg)|*.jpeg;*.png;*.jpg"
+        #with wx.FileDialog(self, "Pick file", wildcard=wildcard) as file_dialog:
+        with wx.DirDialog(self, 'Choose image directory') as dir_dialog:
+            if dir_dialog.ShowModal() == wx.ID_CANCEL:
                 return
-            pathname = file_dialog.GetPath()
-            self.parent.pan_image.update_image(pathname)
+            pathname = dir_dialog.GetPath()
+            print_images(pathname)
+            #self.parent.pan_image.update_image(pathname)
 
 def start_gui():
     app = wx.App(False)
