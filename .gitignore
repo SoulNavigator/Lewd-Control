@@ -123,8 +123,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+.vscode/
+
 # Pictures
 *.png
 *.jpg
 *.jpeg
 *.bmp
+output/
