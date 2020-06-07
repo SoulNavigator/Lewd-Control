@@ -17,10 +17,13 @@ class MainFrame(wx.Frame):
         self.SetSizer(mainbox)
 
     def get_next_image(self):
-        self.current_image = self.images.pop()
-        self.current_image = f'{self.image_dir}/{self.current_image}'
-        self.pan_image.update_image(self.current_image)
-        print(self.current_image)
+        if len(self.images) == 0:
+            self.pan_buttons.lock_buttons()
+        else:
+            self.current_image = self.images.pop()
+            self.current_image = f'{self.image_dir}/{self.current_image}'
+            self.pan_image.update_image(self.current_image)
+            print(self.current_image)
 
 class ImagePanel(wx.Panel):
     default_size = 800
@@ -79,11 +82,20 @@ class ButtonPanel(wx.Panel):
 
         hbox.Add(self.btn_no,  1, wx.ALL|wx.EXPAND, 10)
         hbox.Add(self.btn_yes, 2, wx.ALL|wx.EXPAND, 10) 
-        self.SetSizer(hbox)  
+        self.SetSizer(hbox)
+        self.lock_buttons()
 
     def bind_buttons(self):
         self.btn_yes.Bind(wx.EVT_BUTTON, self.OnNSFWbuttonPress)
         self.btn_no.Bind(wx.EVT_BUTTON, self.OnSFWbuttonPress)
+
+    def lock_buttons(self):
+        self.btn_yes.Disable()
+        self.btn_no.Disable()
+
+    def unlock_buttons(self):
+        self.btn_yes.Enable()
+        self.btn_no.Enable()
 
     def OnNSFWbuttonPress(self, event):
         move_to_folder(self.parent.current_image)
@@ -125,7 +137,7 @@ class Menubar(wx.MenuBar):
             self.parent.image_dir = path
 
             self.parent.get_next_image()
-
+            self.parent.pan_buttons.unlock_buttons()
             #self.parent.current_image = f'{self.parent.image_dir}/{self.parent.images.pop()}'
             #first_image = f'{self.parent.image_dir}/{self.parent.images.pop()}'
             #self.parent.pan_image.update_image(self.parent.current_image)
